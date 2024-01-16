@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import jakarta.websocket.server.ServerEndpoint;
 
-import static org.springframework.beans.BeanUtils.*;
-
 @Service
 @Log4j2
 public class ProductServiceImpl implements ProductService {
@@ -41,8 +39,26 @@ public class ProductServiceImpl implements ProductService {
 
         ProductResponse productResponse
                 = new ProductResponse();
-        copyProperties(product,productResponse);
+        BeanUtils.copyProperties(product,productResponse);
 
         return productResponse;
+    }
+
+    @Override
+    public void reduceQuantity(long productId, long quantity) {
+        log.info("Reduce quantity {} for id {}", quantity,productId);
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductServiceCustomException("Product qith the given id not found","PRODUCT NOT FOUND"));
+
+        if(product.getQuantity()<quantity){
+            throw new ProductServiceCustomException(
+                    "Product does not have sufficient quantity",
+                    "INSUFFICIENT QUANTITY"
+            );
+        }
+        product.setQuantity(product.getQuantity()-quantity);
+        productRepository.save(product);
+        log.info("Product Quantity updated successfully");
     }
 }
