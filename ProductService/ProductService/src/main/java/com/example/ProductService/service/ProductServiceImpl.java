@@ -10,8 +10,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.websocket.server.ServerEndpoint;
-
 @Service
 @Log4j2
 public class ProductServiceImpl implements ProductService {
@@ -49,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
         log.info("Reduce quantity {} for id {}", quantity,productId);
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductServiceCustomException("Product qith the given id not found","PRODUCT NOT FOUND"));
+                .orElseThrow(() -> new ProductServiceCustomException("Product with the given id not found","PRODUCT NOT FOUND"));
 
         if(product.getQuantity()<quantity){
             throw new ProductServiceCustomException(
