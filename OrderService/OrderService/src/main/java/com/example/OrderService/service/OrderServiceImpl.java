@@ -1,10 +1,12 @@
 package com.example.OrderService.service;
 
 import com.example.OrderService.entity.Order;
+import com.example.OrderService.exception.CustomException;
 import com.example.OrderService.external.client.PaymentService;
 import com.example.OrderService.external.client.ProductService;
 import com.example.OrderService.external.request.PaymentRequest;
 import com.example.OrderService.model.OrderRequest;
+import com.example.OrderService.model.OrderResponse;
 import com.example.OrderService.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +58,32 @@ public class OrderServiceImpl implements OrderService{
         orderRepository.save(order);
         log.info("Order placed successfully with order id: {}", order.getId());
         return order.getId();
+    }
+
+    @Override
+    public OrderResponse getOrderDetails(Long orderId) {
+
+        log.info("Get order details for OrderId:{}",orderId);
+        Order order =
+                orderRepository.findById(orderId)
+                        .orElseThrow(()->
+                                new CustomException
+                                        ("Order not found for the orderId:"+orderId,"NOT_FOUND",404)
+                        );
+        log.info("Invoking Product service to fetch the product for id:{}",order.getProductId());
+
+
+        OrderResponse orderResponse =
+                OrderResponse.builder()
+                        .orderId(order.getId())
+                        .orderStatus(order.getOrderStatus())
+                        .amount(order.getAmount())
+                        .orderDate(order.getOrderDate())
+                        .build();
+        return orderResponse;
+
+
+
+
     }
 }
